@@ -1,0 +1,4 @@
+django
+Flask
+requests
+faker

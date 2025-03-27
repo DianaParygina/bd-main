@@ -1,0 +1,7 @@
+{
+  "football/tests.py::AthletesViewsetTestCase::test_list": true,
+  "football/tests.py::AthletesViewsetTestCase::test_get_list": true,
+  "football/tests.py::ApplicationsViewsetTestCase::test_get_list": true,
+  "football/tests.py::ApplicationsViewsetTestCase::test_list": true,
+  "football/tests.py::CoachesViewsetTestCase::test_update_student": true
+}
