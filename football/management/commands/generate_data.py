@@ -23,13 +23,13 @@ class Command(BaseCommand):
         self.generate_applications(50000)
         self.generate_games(100000)
         self.generate_teams_in_games(200000)
-        self.generate_results(500000)
-        self.generate_trainings(100000)
-        self.generate_attendance(500000)
+        self.generate_results(200000)
+        self.generate_trainings(10000)
+        self.generate_attendance(200000)
 
     def generate_tournaments(self, count):
         for _ in range(count):
-            start_date = fake.date_time_between(start_date='-30y', end_date='now', tzinfo=timezone.get_current_timezone())
+            start_date = fake.date_between(start_date='-30y', end_date='today')
             end_date = start_date + timedelta(days=random.randint(1, 14))
 
             Tournaments.objects.create(
@@ -45,7 +45,7 @@ class Command(BaseCommand):
         for _ in range(count):
             Coaches.objects.create(
                 fullname=fake.name(),
-                dateofbirth=fake.date_time_between(start_date='-70y', end_date='-30y', tzinfo=timezone.get_current_timezone())
+                dateofbirth=fake.date_between(start_date='-70y', end_date='-30y')
             )
         self.stdout.write(self.style.SUCCESS(f'Создано {count} тренеров'))
 
@@ -63,14 +63,16 @@ class Command(BaseCommand):
         self.stdout.write(self.style.SUCCESS(f'Создано {count} команд'))
 
     def generate_athletes(self, count):
+        teams = list(Teams.objects.all())
         for _ in range(count):
             weight = round(random.uniform(0, 99.99), 2)
             Athletes.objects.create(
                 fullname=fake.name(),
-                dateofbirth=fake.date_time_between(start_date='-40y', end_date='-18y', tzinfo=timezone.get_current_timezone()),
+                dateofbirth=fake.date_between(start_date='-40y', end_date='-18y'),
                 weight = weight,  
                 height=random.randint(150, 200),
-                gender=random.choice(['Male', 'Female'])
+                gender=random.choice(['Male', 'Female']),
+                teamid=random.choice(teams),
             )
         self.stdout.write(self.style.SUCCESS(f'Создано {count} спортсменов'))
 
@@ -89,7 +91,7 @@ class Command(BaseCommand):
         for _ in range(count):
             Games.objects.create(
                 tournamentid=random.choice(tournaments),
-                date=fake.date_time_between(start_date='-30y', end_date='now', tzinfo=timezone.get_current_timezone()),
+                date=fake.date_between(start_date='-30y', end_date='today'),
                 location=fake.city(),
                 score=f"{random.randint(0, 5)}-{random.randint(0, 5)}",
                 hierarchy=random.randint(1, 10)
@@ -125,7 +127,7 @@ class Command(BaseCommand):
             Trainings.objects.create(
                 teamid=random.choice(teams),
                 name=fake.word().capitalize() + " Тренировка",
-                date=fake.date_time_between(start_date='-30y', end_date='now', tzinfo=timezone.get_current_timezone())
+                date=fake.date_between(start_date='-30y', end_date='today')
             )
         self.stdout.write(self.style.SUCCESS(f'Создано {count} тренировок'))
 

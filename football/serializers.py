@@ -5,45 +5,46 @@ from .models import (
 )
 
 class ApplicationsSerializer(serializers.ModelSerializer):
+    dateofbirth = serializers.DateField(format="%Y-%m-%d")
     class Meta:
         model = Applications
-        fields = '__all__'
+        fields = ('applicationid', 'tournamentid', 'status') 
 
 class AthletesSerializer(serializers.ModelSerializer):
     class Meta:
         model = Athletes
-        fields = '__all__'
+        fields = ('athleteid', 'fullname', 'dateofbirth', 'weight', 'height')
 
 class AttendanceSerializer(serializers.ModelSerializer):
     class Meta:
         model = Attendance
-        fields = '__all__'
+        fields = ('attendanceid', 'athleteid', 'pressrating', 'captainrating', 'coachrating')
 
 class CoachesSerializer(serializers.ModelSerializer):
     dateofbirth = serializers.DateField(format="%Y-%m-%d")
 
     class Meta:
         model = Coaches
-        fields = '__all__'
+        fields = ('coachid', 'fullname', 'dateofbirth')
 
 class GamesSerializer(serializers.ModelSerializer):
     date = serializers.DateField(format="%Y-%m-%d")
 
     class Meta:
         model = Games
-        fields = '__all__'
+        fields = ('gameid', 'tournamentid', 'date', 'location', 'score', 'hierarchy')
 
 class ResultsSerializer(serializers.ModelSerializer):
     fullname = serializers.CharField(source='athleteid.fullname', read_only=True)
                                      
     class Meta:
         model = Results
-        fields = '__all__'
+        fields = ('resultid', 'athleteid', 'athleteplace', 'goalsscored', 'fullname')
 
 class TeamsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Teams
-        fields = '__all__'
+        fields = ('teamid', 'coachid', 'name', 'rating', 'wins', 'losses', 'draws')
 
 class TeamsInGamesSerializer(serializers.ModelSerializer):
     class Meta:
@@ -56,11 +57,21 @@ class TournamentsSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Tournaments
-        fields = '__all__'
+        fields = ('tournamentid', 'name', 'location', 'startdate', 'enddate', 'rating')
 
 class TrainingsSerializer(serializers.ModelSerializer):
     date = serializers.DateField(format="%Y-%m-%d")
     
     class Meta:
         model = Trainings
-        fields = '__all__'
+        fields = ('trainingid', 'teamid', 'name', 'date')
+
+
+
+# class AthletesWithTournamentsSerializer(serializers.Serializer):  # Используйте Serializer, а не ModelSerializer
+    # athleteid = serializers.IntegerField()
+    # fullname = serializers.CharField()
+    # tournament_name = serializers.CharField(source='results_set__gameid__tournamentid__name')
+    # tournament_location = serializers.CharField(source='results_set__gameid__tournamentid__location')
+    # tournament_startdate = serializers.DateField(source='results_set__gameid__tournamentid__startdate')
+    # tournament_enddate = serializers.DateField(source='results_set__gameid__tournamentid__enddate')

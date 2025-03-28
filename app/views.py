@@ -1,5 +1,7 @@
 from rest_framework import viewsets, filters, generics
 from django.http import HttpResponse
+from rest_framework.response import Response
+from django.db.models import Count
 from django_filters.rest_framework import DjangoFilterBackend
 from football.models import (
     Applications, Athletes, Attendance, Coaches, Games, Results,
@@ -232,6 +234,41 @@ class AthleteList(generics.ListCreateAPIView):
 class AthleteDetail(generics.RetrieveAPIView):
     queryset = Athletes.objects.all()
     serializer_class = AthletesSerializer
+
+
+class AthletesInGamesViewSet(viewsets.ViewSet): # ViewSet для произвольных запросов
+    def list(self, request):
+        game_id = request.query_params.get('gameid')
+
+        # Джоин Athletes, Results, TeamsInGames и Games
+        queryset = Athletes.objects.filter(
+            resultid__gameid=game_id  # Связь через промежуточную таблицу Results
+        ).values(
+            'athleteid', 'fullname', 'resultid__goalsscored', 'resultid__athleteplace', 'resultid__gameid__date', 'resultid__gameid__location'
+        )
+
+        serializer = AthletesSerializer(queryset, many=True, context={'request': request}) # Используем AthletesSerializer
+        return Response(serializer.data)
+
+
+
+class TrainingsByTeamViewSet(viewsets.ViewSet):
+    def list(self, request):
+        team_id = request.query_params.get('teamid')
+
+        # Джоин Trainings и Teams, а также подсчет количества тренировок
+        queryset = Teams.objects.filter(
+            teamid=team_id
+        ).annotate(
+            trainings_count=Count('trainings')
+        ).values(
+            'teamid', 'name', 'trainings_count'
+        )
+
+
+        serializer = TeamsSerializer(queryset, many=True, context={'request': request}) # Используем TeamsSerializer
+        return Response(serializer.data)
+
 
 
 def home(request):

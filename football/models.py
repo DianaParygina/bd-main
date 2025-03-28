@@ -18,6 +18,7 @@ class Athletes(models.Model):
     weight = models.IntegerField(db_column='Weight', blank=True, null=True) 
     height = models.IntegerField(db_column='Height', blank=True, null=True)
     gender = models.CharField(db_column='Gender', max_length=10, db_collation='Cyrillic_General_CI_AS', blank=True, null=True)
+    teamid = models.ForeignKey('Teams', models.DO_NOTHING, db_column='TeamID', blank=True, null=True)
 
     class Meta:
         managed = True

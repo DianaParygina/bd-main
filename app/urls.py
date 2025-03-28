@@ -22,7 +22,8 @@ from .views import home, AthleteList, AthleteDetail
 from .views import (
     ApplicationsViewSet, AthletesViewSet, AttendanceViewSet,
     CoachesViewSet, GamesViewSet, ResultsViewSet, TeamsViewSet,
-    TeamsInGamesViewSet, TournamentsViewSet, TrainingsViewSet
+    TeamsInGamesViewSet, TournamentsViewSet, TrainingsViewSet,
+    AthletesInGamesViewSet, TrainingsByTeamViewSet
 )
 
 router = DefaultRouter()
@@ -41,6 +42,8 @@ urlpatterns = [
     path('admin/', admin.site.urls),  # Подключение административной панели
     path('athletes/', AthleteList.as_view(), name='athlete-list'),
     path('athletes/<int:pk>/', AthleteDetail.as_view(), name='athlete-detail'),
+    path('api/athletes-in-games/', AthletesInGamesViewSet.as_view({'get': 'list'}), name='athletes-in-games'),
+    path('api/trainings-by-team/', TrainingsByTeamViewSet.as_view({'get': 'list'}), name='trainings-by-team'), 
     path('home/', home, name='home'),
     path('api/', include(router.urls)),
 ]

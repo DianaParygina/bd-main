@@ -91,7 +91,7 @@ DATABASES = {
             'driver': 'ODBC Driver 17 for SQL Server', # Или другой подходящий драйвер
             'Trusted_Connection': 'yes;',
             'Network Library': 'TCPIP',
-            'current_schema': 'db_owner',
+            # 'current_schema': 'db_owner',
         },
     }
 }

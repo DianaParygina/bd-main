@@ -99,13 +99,13 @@ async def simulate_user_activity(client, queries, weights):
         if method == "POST":
             if endpoint == "/api/athletes/":
                 data["fullname"] = fake.name()
-                data["dateofbirth"] = fake.date_time_between(start_date='-40y', end_date='-18y').strftime('%Y-%m-%d')
+                data["dateofbirth"] = fake.date_between(start_date='-40y', end_date='-18y').strftime('%Y-%m-%d')
                 data["weight"] = random.randint(50, 100)
                 data["height"] = random.randint(150, 200)
                 data["gender"] = random.choice(['Male', 'Female'])
             elif endpoint == "/api/coaches/":
                 data["fullname"] = fake.name()
-                data["dateofbirth"] = fake.date_time_between(start_date='-70y', end_date='-30y').strftime('%Y-%m-%d')
+                data["dateofbirth"] = fake.date_between(start_date='-70y', end_date='-30y').strftime('%Y-%m-%d')
             elif endpoint == "/api/teams/":
                 # Получаем случайный ID тренера
                 coach_id = await client.get_random_id("/api/coaches/")
@@ -119,15 +119,15 @@ async def simulate_user_activity(client, queries, weights):
             elif endpoint == "/api/tournaments/":
                 data["name"] = fake.word().capitalize() + " Турнир"
                 data["location"] = fake.city()
-                data["startdate"] = fake.date_time_between(start_date='-30y', end_date='now').strftime('%Y-%m-%d')
-                data["enddate"] = fake.date_time_between(start_date='-30y', end_date='now').strftime('%Y-%m-%d')
+                data["startdate"] = fake.date_between(start_date='-30y', end_date='today').strftime('%Y-%m-%d')
+                data["enddate"] = fake.date_between(start_date='-30y', end_date='today').strftime('%Y-%m-%d')
                 data["rating"] = random.randint(1, 100)
             elif endpoint == "/api/games/":
                 # Получаем случайный ID турнира
                 tournament_id = await client.get_random_id("/api/tournaments/")
                 if tournament_id:
                     data["tournamentid"] = tournament_id
-                data["date"] = fake.date_time_between(start_date='-30y', end_date='now').strftime('%Y-%m-%d')
+                data["date"] = fake.date_between(start_date='-30y', end_date='today').strftime('%Y-%m-%d')
                 data["location"] = fake.city()
                 data["score"] = f"{random.randint(0, 5)}-{random.randint(0, 5)}"
                 data["hierarchy"] = random.randint(1, 10)
@@ -144,7 +144,7 @@ async def simulate_user_activity(client, queries, weights):
                 if team_id:
                     data["teamid"] = team_id
                 data["name"] = fake.word().capitalize() + " Тренировка"
-                data["date"] = fake.date_time_between(start_date='-30y', end_date='now').strftime('%Y-%m-%d')
+                data["date"] = fake.date_between(start_date='-30y', end_date='today').strftime('%Y-%m-%d')
             elif endpoint == "/api/results/":
                 # Получаем случайный ID атлета
                 athlete_id = await client.get_random_id("/api/athletes/")
@@ -247,22 +247,23 @@ async def simulate_user_activity(client, queries, weights):
                         "tournamentid__gt": 10000  
                     }
 
-            # elif endpoint == "/api/athletesfromresults/":
-            #     filters = {
-            #         "fullname__contains": fake.last_name(),
-            #     }
-            # elif endpoint == "/api/trainings-by-team/":
-            #     team_id = await client.get_random_id("/api/teams/")
-            #     if team_id:
-            #         filters = {
-            #             "teamid": team_id
-            #         }
-            # elif endpoint == "/api/athletes-in-games/":
-            #     game_id = await client.get_random_id("/api/games/")
-            #     if game_id:
-            #         filters = {
-            #             "gameid": game_id
-            #         }        
+            elif endpoint == "/api/athletes-in-games/":
+                game_id = await client.get_random_id("/api/games/")
+                if game_id:
+                    filters = {
+                        "gameid": game_id
+                    }
+            elif endpoint == "/api/trainings-by-team/":
+                team_id = await client.get_random_id("/api/teams/")
+                if team_id:
+                    filters = {
+                        "teamid": team_id
+                    }      
+            elif endpoint == "/api/athletes-with-tournaments/":
+            #  Здесь можно добавить фильтры, если нужны, например:
+                athlete_id = await client.get_random_id("/api/athletes/")  #  Случайный ID атлета
+                if athlete_id:
+                    filters["athleteid"] = athlete_id  # Фильтр по ID атлета             
             else:  # Для всех остальных GET запросов, если они есть
                 filters = {
                     "id__ge": random.randint(1, 5)
@@ -293,12 +294,12 @@ async def simulate_user_activity(client, queries, weights):
                 # Подготавливаем данные для обновления
                 data = {}  # Очищаем словарь data на каждой итерации
                 if endpoint.startswith("/api/athletes/"):
-                    data["dateofbirth"] = fake.date_time_between(start_date='-40y', end_date='-18y').strftime('%Y-%m-%d')
+                    data["dateofbirth"] = fake.date_between(start_date='-40y', end_date='-18y').strftime('%Y-%m-%d')
                     data["weight"] = random.randint(50, 150) # Расширенный диапазон веса
                     data["height"] = random.randint(140, 220) # Расширенный диапазон роста
                 elif endpoint.startswith("/api/coaches/"):
                     data["fullname"] = fake.name()
-                    data["dateofbirth"] = fake.date_time_between(start_date='-40y', end_date='-18y').strftime('%Y-%m-%d')
+                    data["dateofbirth"] = fake.date_between(start_date='-40y', end_date='-18y').strftime('%Y-%m-%d')
                 elif endpoint.startswith("/api/teams/"):
                     data["name"] = fake.company()
                     data["rating"] = random.randint(1, 100)
@@ -306,8 +307,8 @@ async def simulate_user_activity(client, queries, weights):
                 elif endpoint.startswith("/api/tournaments/"):
                     data["name"] = fake.word().capitalize() + " Турнир"
                     data["location"] = fake.city()
-                    data["startdate"] = fake.date_time_between(start_date='-40y', end_date='-18y').strftime('%Y-%m-%d')
-                    data["enddate"] = fake.date_time_between(start_date='-40y', end_date='-18y').strftime('%Y-%m-%d')
+                    data["startdate"] = fake.date_between(start_date='-40y', end_date='-18y').strftime('%Y-%m-%d')
+                    data["enddate"] = fake.date_between(start_date='-40y', end_date='-18y').strftime('%Y-%m-%d')
                 elif endpoint.startswith("/api/games/"):
                     data["score"] = f"{random.randint(0, 5)}-{random.randint(0, 5)}"
                     data["location"] = fake.city()
@@ -367,11 +368,11 @@ async def main():
                 # ("GET", "/api/teamsingames/", {}),
                 ("GET", "/api/trainings/", {}),
                 ("GET", "/api/results/", {}),
-                ("GET", "/api/attendance/", {}),
-                ("GET", "/api/applications/", {}),
-                # ("GET", "/api/athletesfromresults/", {}),
+                # ("GET", "/api/attendance/", {}),
+                # # ("GET", "/api/applications/", {}),
+                # ("GET", "/api/athletes-in-games/", {}), 
                 # ("GET", "/api/trainings-by-team/", {}),
-                # ("GET", "/api/athletes-in-games/", {}),
+                # ("GET", "/api/athletes-with-tournaments/", {}),
 
                 # POST запросы
                 ("POST", "/api/coaches/", {}),
@@ -393,10 +394,10 @@ async def main():
                 ("DELETE", "/api/tournaments/", {}),
             ]
 
-            weights =  [50] * 9 + [35] * 4 + [10] * 4 + [1] * 4  # Веса для запросов
+            weights =  [50] * 7 + [35] * 4 + [10] * 4 + [1] * 4  # Веса для запросов
             tasks = [simulate_user_activity(client, queries, weights) for _ in range(5)]  # 5 одновременных пользователей
 
-            await asyncio.wait_for(asyncio.gather(*tasks), timeout=10.0)
+            await asyncio.wait_for(asyncio.gather(*tasks), timeout=60.0)
 
     except KeyboardInterrupt:
         print("Программа завершена пользователем.")
