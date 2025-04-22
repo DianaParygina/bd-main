@@ -86,7 +86,7 @@ class Teams(models.Model):
 
 
 class Teamsingames(models.Model):
-    teamsingameid = models.AutoField(db_column='TeamsingameID', primary_key=True) 
+    teamsingameid = models.AutoField(db_column='TeamsingamesID', primary_key=True) 
     teamid = models.ForeignKey(Teams, models.DO_NOTHING, db_column='TeamID')  
     gameid = models.ForeignKey(Games, models.DO_NOTHING, db_column='GameID')
 

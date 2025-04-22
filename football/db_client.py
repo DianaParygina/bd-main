@@ -77,14 +77,36 @@ class AsyncDBClient:
         return 0
 
 
+    
     async def get_random_id(self, endpoint):
-        """Генерирует случайный ID для указанного эндпоинта, учитывая пагинацию."""
-        total_count = await self.get_total_count(endpoint)
-        if total_count == 0:
+        """Получает случайный существующий ID через API"""
+        try:
+            # Сначала получаем общее количество записей
+            count = await self.get_total_count(endpoint)
+            if not count or count == 0:
+                print(f"Нет данных в {endpoint} для выбора случайного ID")
+                return None
+                
+            # Выбираем случайный ID в пределах общего количества
+            random_id = random.randint(1, count)
+            
+            # Проверяем существование этого ID
+            check_url = f"{endpoint}{random_id}/"
+            response = await self.session.get(self.base_url + check_url)
+            
+            if response.status == 200:
+                return random_id
+            elif response.status == 404:
+                # Если ID не существует, пробуем еще раз
+                return await self.get_random_id(endpoint)
+            else:
+                error_text = await response.text()
+                print(f"Ошибка при проверке ID {random_id} в {endpoint}: {response.status}, error: {error_text}")
+                return None
+                
+        except Exception as e:
+            print(f"Ошибка при получении случайного ID из {endpoint}: {e}")
             return None
-
-        random_id = random.randint(1, total_count)
-        return random_id  # Не нужно проверять существование, т.к. ID генерируется в пределах count
 
 
 async def simulate_user_activity(client, queries, weights):
@@ -189,12 +211,10 @@ async def simulate_user_activity(client, queries, weights):
                     "losses": 5,
                 }
             elif endpoint == "/api/athletes/":
-                # athlete_id = await client.get_random_id("/api/athletes/")
                 filters = {
                     "dateofbirth__year__gt": 2000,
                     "weight": 74,
                     "height": 190,
-                    # "athleteid__gt": 100000 
                 }
             elif endpoint == "/api/tournaments/":
                 filters = {
@@ -203,41 +223,28 @@ async def simulate_user_activity(client, queries, weights):
                 }
                 
             elif endpoint == "/api/games/":
-                tournament_id = await client.get_random_id("/api/tournaments/")
                 filters = {
                     "date__year__gt": 2023,  
                     "hierarchy": 9,
-                    "score": "4-1",
-                    "tournamentid__gt": 10000
+                    "score": "4-1"
                 }
             elif endpoint == "/api/teamsingames/":
-                team_id = await client.get_random_id("/api/teams/")
-                game_id = await client.get_random_id("/api/games/")
-                if team_id and game_id:
                     filters = {
-                        "teamid": team_id,
-                        "gameid": game_id
                     }
             elif endpoint == "/api/trainings/":
-                tournament_id = await client.get_random_id("/api/tournaments/")
                 filters = {
-                    "date__year__gt": 2024,
-                    # "tournamentid__gt": 3000   
+                    "date__year__gt": 2024, 
                 }
             elif endpoint == "/api/results/":
-                athlete_id = await client.get_random_id("/api/athletes/")
                 filters = {
                     "athleteplace": 10,  
-                    "goalsscored": 3,
-                    "athleteid__lt": 500000 
+                    "goalsscored": 3
                 }
             elif endpoint == "/api/attendance/":
-                athlete_id = await client.get_random_id("/api/athletes/")
                 filters = {
                     "coachrating": 10,
                     "captainrating": 10,
-                    "pressrating": 10,
-                    "athleteid__gt": 30000 
+                    "pressrating": 10
                 }
             elif endpoint == "/api/applications/":
                 tournament_id = await client.get_random_id("/api/tournaments/")
@@ -247,23 +254,19 @@ async def simulate_user_activity(client, queries, weights):
                         "tournamentid__gt": 10000  
                     }
 
-            elif endpoint == "/api/athletes-in-games/":
-                game_id = await client.get_random_id("/api/games/")
-                if game_id:
-                    filters = {
-                        "gameid": game_id
-                    }
-            elif endpoint == "/api/trainings-by-team/":
-                team_id = await client.get_random_id("/api/teams/")
-                if team_id:
-                    filters = {
-                        "teamid": team_id
-                    }      
-            elif endpoint == "/api/athletes-with-tournaments/":
-            #  Здесь можно добавить фильтры, если нужны, например:
-                athlete_id = await client.get_random_id("/api/athletes/")  #  Случайный ID атлета
-                if athlete_id:
-                    filters["athleteid"] = athlete_id  # Фильтр по ID атлета             
+            elif endpoint == "/api/athletes-trainings/":
+                filters = {
+                    "gender": 'Male',
+                    "weight": 80,
+                    "height": 170  
+                }    
+            elif endpoint == "/api/coaches-tournaments/":
+                filters = {
+                    "startdate__year": 2023,
+                    "dateofbirth__year": 1970,
+                }   
+
+                     
             else:  # Для всех остальных GET запросов, если они есть
                 filters = {
                     "id__ge": random.randint(1, 5)
@@ -365,14 +368,16 @@ async def main():
                 ("GET", "/api/athletes/", {}),
                 ("GET", "/api/tournaments/", {}),
                 ("GET", "/api/games/", {}),
-                # ("GET", "/api/teamsingames/", {}),
+                ("GET", "/api/teamsingames/", {}),
                 ("GET", "/api/trainings/", {}),
                 ("GET", "/api/results/", {}),
-                # ("GET", "/api/attendance/", {}),
+                ("GET", "/api/attendance/", {}),
                 # # ("GET", "/api/applications/", {}),
                 # ("GET", "/api/athletes-in-games/", {}), 
                 # ("GET", "/api/trainings-by-team/", {}),
                 # ("GET", "/api/athletes-with-tournaments/", {}),
+                ("GET", "/api/athletes-trainings/", {}),
+                ("GET", "/api/coaches-tournaments/", {}),
 
                 # POST запросы
                 ("POST", "/api/coaches/", {}),
@@ -381,23 +386,23 @@ async def main():
                 # ("POST", "/api/tournaments/", {}),
                 ("POST", "/api/games/", {}),
 
-                # PUT запросы
+                # # PUT запросы
                 ("PUT", "/api/coaches/", {}),
                 ("PUT", "/api/teams/", {}),
                 ("PUT", "/api/athletes/", {}),
                 ("PUT", "/api/tournaments/", {}),
 
-                # # DELETE запросы
+                # DELETE запросы
                 ("DELETE", "/api/coaches/", {}),
                 ("DELETE", "/api/teams/", {}),
                 ("DELETE", "/api/athletes/", {}),
                 ("DELETE", "/api/tournaments/", {}),
             ]
 
-            weights =  [50] * 7 + [35] * 4 + [10] * 4 + [1] * 4  # Веса для запросов
+            weights = [50] * 11  + [25] * 4 + [10] * 4 + [1] * 4  # Веса для запросов
             tasks = [simulate_user_activity(client, queries, weights) for _ in range(5)]  # 5 одновременных пользователей
 
-            await asyncio.wait_for(asyncio.gather(*tasks), timeout=60.0)
+            await asyncio.wait_for(asyncio.gather(*tasks), timeout=240.0)
 
     except KeyboardInterrupt:
         print("Программа завершена пользователем.")

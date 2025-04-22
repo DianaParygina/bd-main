@@ -16,16 +16,16 @@ class Command(BaseCommand):
     help = 'Генерация реалистичных данных для базы данных'
 
     def handle(self, *args, **options):
-        self.generate_tournaments(10000)
-        self.generate_coaches(5000)
-        self.generate_teams(20000)
-        self.generate_athletes(100000)
-        self.generate_applications(50000)
-        self.generate_games(100000)
+        # self.generate_tournaments(10000)
+        # self.generate_coaches(5000)
+        # self.generate_teams(20000)
+        # self.generate_athletes(100000)
+        # self.generate_applications(50000)
+        # self.generate_games(100000)
         self.generate_teams_in_games(200000)
-        self.generate_results(200000)
-        self.generate_trainings(10000)
-        self.generate_attendance(200000)
+        # self.generate_results(200000)
+        # self.generate_trainings(10000)
+        # self.generate_attendance(200000)
 
     def generate_tournaments(self, count):
         for _ in range(count):

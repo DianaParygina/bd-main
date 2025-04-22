@@ -23,7 +23,8 @@ from .views import (
     ApplicationsViewSet, AthletesViewSet, AttendanceViewSet,
     CoachesViewSet, GamesViewSet, ResultsViewSet, TeamsViewSet,
     TeamsInGamesViewSet, TournamentsViewSet, TrainingsViewSet,
-    AthletesInGamesViewSet, TrainingsByTeamViewSet
+    AthletesInGamesViewSet, TrainingsByTeamViewSet, AthletesTrainingsViewSet,
+    CoachesTournamentsViewSet
 )
 
 router = DefaultRouter()
@@ -37,6 +38,8 @@ router.register(r'teams', TeamsViewSet)
 router.register(r'teamsingames', TeamsInGamesViewSet)
 router.register(r'tournaments', TournamentsViewSet)
 router.register(r'trainings', TrainingsViewSet)
+router.register(r'athletes-trainings', AthletesTrainingsViewSet, basename='athletes-trainings')
+router.register(r'coaches-tournaments', CoachesTournamentsViewSet, basename='coaches-tournaments')
 
 urlpatterns = [
     path('admin/', admin.site.urls),  # Подключение административной панели
